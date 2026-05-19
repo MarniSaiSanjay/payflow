@@ -1,0 +1,28 @@
+# Working / internal docs — stay local, out of git
+WORKFLOW.md
+.claude/
+
+# Environment
+.env
+.env.*.local
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+*/dist/
+*/build/
+
+# Test / coverage
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
