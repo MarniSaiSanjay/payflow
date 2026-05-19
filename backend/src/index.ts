@@ -1,7 +1,8 @@
 import express from 'express';
+import { env } from './env';
+import { errorHandler } from './middleware/error';
 
 const app = express();
-const port = process.env.PORT || 4000;
 
 app.use(express.json());
 
@@ -9,6 +10,8 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.listen(port, () => {
-  console.log(`PayFlow Tracker API listening on http://localhost:${port}`);
+app.use(errorHandler);
+
+app.listen(env.PORT, () => {
+  console.log(`PayFlow Tracker API listening on http://localhost:${env.PORT}`);
 });
