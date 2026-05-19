@@ -8,7 +8,9 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
-    "verify": "npm run build"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "verify": "npm run build && npm test"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
@@ -22,6 +24,7 @@
     "@types/node": "^22.7.5",
     "prisma": "^6.19.3",
     "tsx": "^4.19.1",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^4.1.6"
   }
 }
