@@ -1,0 +1,7 @@
+{
+  "name": "tolken-payout-tracker",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": ["frontend", "backend", "shared"],
+  "engines": { "node": ">=22" }
+}
