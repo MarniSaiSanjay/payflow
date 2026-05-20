@@ -6,8 +6,7 @@ import { errorHandler } from './middleware/error';
 
 const app = express();
 
-// Allow the frontend dev origin to call the API. Tighten / read from env for prod.
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors({ origin: env.FRONTEND_URL }));
 app.use(express.json());
 
 app.get('/health', (_req, res) => {
