@@ -1,12 +1,16 @@
+// Output pinned to workspace-root node_modules so backend + shared share one client
 generator client {
   provider = "prisma-client-js"
+  output   = "../../node_modules/.prisma/client"
 }
 
+// DATABASE_URL is read from .env via env.ts
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+// Current state of a payment
 model Payment {
   id            String    @id @default(uuid())
   senderName    String
@@ -19,6 +23,7 @@ model Payment {
   history       PaymentStatusHistory[]
 }
 
+// Append-only audit log: one row per transition (initial CREATE has fromStatus = null)
 model PaymentStatusHistory {
   id          String    @id @default(uuid())
   paymentId   String
@@ -30,6 +35,7 @@ model PaymentStatusHistory {
   @@index([paymentId, at])
 }
 
+// Allowed transitions are enforced in utilities/statusMachine.ts, not the DB
 enum Status {
   CREATED
   PROCESSING
