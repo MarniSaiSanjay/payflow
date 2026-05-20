@@ -28,6 +28,10 @@ jobs:
       - name: Build shared workspace
         run: npm run build:shared
 
+      - name: Generate Prisma client (needed for TS types)
+        working-directory: backend
+        run: npx prisma generate
+
       - name: Compile backend (TypeScript -> dist/)
         working-directory: backend
         run: npm run build
