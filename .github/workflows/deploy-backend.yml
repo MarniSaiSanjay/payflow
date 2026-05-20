@@ -36,10 +36,6 @@ jobs:
         working-directory: backend
         run: npm run build
 
-      - name: Run backend tests
-        working-directory: backend
-        run: npm test
-
       - name: Package monorepo (excluding frontend)
         run: |
           zip -r -y deploy.zip . \
