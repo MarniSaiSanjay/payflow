@@ -1,4 +1,12 @@
 import { z } from 'zod';
+import cc from 'currency-codes';
+
+export const ISO_CURRENCIES = cc.codes().map((code) => ({
+  code,
+  name: cc.code(code)?.currency ?? code,
+}));
+
+const CURRENCY_CODE_SET = new Set(cc.codes());
 
 export const PaymentStatusSchema = z.enum([
   'CREATED',
@@ -22,7 +30,7 @@ export const CreatePaymentSchema = z.object({
   senderName:    z.string().min(1).max(200),
   recipientName: z.string().min(1).max(200),
   amount:        z.number().positive(),
-  currency:      z.string().length(3).regex(/^[A-Z]{3}$/, 'must be a 3-letter ISO 4217 code'),
+  currency:      z.string().refine((c) => CURRENCY_CODE_SET.has(c), 'must be a valid ISO 4217 currency code'),
   notes:         z.string().max(1000).optional(),
 });
 

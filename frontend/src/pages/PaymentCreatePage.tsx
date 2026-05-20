@@ -8,8 +8,9 @@ import {
   Button,
   CircularProgress,
   Alert,
+  Autocomplete,
 } from '@mui/material';
-import { CreatePaymentSchema, type CreatePaymentInput } from 'shared';
+import { CreatePaymentSchema, ISO_CURRENCIES, type CreatePaymentInput } from 'shared';
 import { createPayment, ApiError } from '../api/payments';
 
 type FieldErrors = Partial<Record<keyof CreatePaymentInput, string>>;
@@ -41,9 +42,6 @@ export default function PaymentCreatePage() {
     (key: keyof FormState) =>
     (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm((prev) => ({ ...prev, [key]: e.target.value }));
-
-  const handleCurrency = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    setForm((prev) => ({ ...prev, currency: e.target.value.toUpperCase() }));
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -134,13 +132,22 @@ export default function PaymentCreatePage() {
             slotProps={{ htmlInput: { step: '0.01', min: 0 } }}
             fullWidth
           />
-          <TextField
-            label="Currency"
-            value={form.currency}
-            onChange={handleCurrency}
-            error={Boolean(errors.currency)}
-            helperText={errors.currency ?? 'ISO 4217 code (USD, EUR, INR, ...)'}
-            slotProps={{ htmlInput: { maxLength: 3 } }}
+          <Autocomplete
+            options={ISO_CURRENCIES}
+            getOptionLabel={(opt) => `${opt.code} — ${opt.name}`}
+            isOptionEqualToValue={(opt, val) => opt.code === val.code}
+            value={ISO_CURRENCIES.find((c) => c.code === form.currency) ?? null}
+            onChange={(_, picked) =>
+              setForm((prev) => ({ ...prev, currency: picked?.code ?? '' }))
+            }
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Currency"
+                error={Boolean(errors.currency)}
+                helperText={errors.currency ?? 'ISO 4217 code'}
+              />
+            )}
             fullWidth
           />
           <TextField
