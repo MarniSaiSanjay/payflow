@@ -64,28 +64,37 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return (await response.json()) as T;
 }
 
-export function listPayments(filter?: { status?: PaymentStatus }): Promise<PaymentDto[]> {
+export function listPayments(
+  filter?: { status?: PaymentStatus },
+  signal?: AbortSignal,
+): Promise<PaymentDto[]> {
   const query = filter?.status ? `?status=${filter.status}` : '';
-  return request<PaymentDto[]>(`/payments${query}`);
+  return request<PaymentDto[]>(`/payments${query}`, { signal });
 }
 
-export function getPayment(id: string): Promise<PaymentWithHistoryDto> {
-  return request<PaymentWithHistoryDto>(`/payments/${id}`);
+export function getPayment(id: string, signal?: AbortSignal): Promise<PaymentWithHistoryDto> {
+  return request<PaymentWithHistoryDto>(`/payments/${id}`, { signal });
 }
 
-export function createPayment(input: CreatePaymentInput): Promise<PaymentDto> {
+export function createPayment(
+  input: CreatePaymentInput,
+  signal?: AbortSignal,
+): Promise<PaymentDto> {
   return request<PaymentDto>('/payments', {
     method: 'POST',
     body: JSON.stringify(input),
+    signal,
   });
 }
 
 export function transitionPayment(
   id: string,
   input: TransitionPaymentInput,
+  signal?: AbortSignal,
 ): Promise<PaymentDto> {
   return request<PaymentDto>(`/payments/${id}/transition`, {
     method: 'PATCH',
     body: JSON.stringify(input),
+    signal,
   });
 }
