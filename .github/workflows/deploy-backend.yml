@@ -36,36 +36,38 @@ jobs:
         working-directory: backend
         run: npm run build
 
-      # The deploy artifact is a flat, self-contained backend bundle.
-      # We inline shared/ as a `file:` dep so App Service doesn't need workspace symlinks.
+      # Self-contained deploy bundle. shared is hard-copied into node_modules/
+      # to dodge npm-symlink + Oryx-tar.gz issues that strip workspace links.
       - name: Build self-contained deploy bundle
         run: |
-          mkdir -p _deploy/shared
+          mkdir -p _deploy
           cp -r backend/dist _deploy/dist
           cp -r backend/prisma _deploy/prisma
           cp backend/package.json _deploy/package.json
-          cp shared/package.json _deploy/shared/package.json
-          cp -r shared/dist _deploy/shared/dist
 
-          # Rewrite shared dep: from workspace ("*") to local file path.
+          # Strip the shared workspace ref so npm install doesn't try to resolve it.
           node -e "
             const fs = require('fs');
             const p = JSON.parse(fs.readFileSync('_deploy/package.json', 'utf8'));
-            p.dependencies.shared = 'file:./shared';
+            delete p.dependencies.shared;
             fs.writeFileSync('_deploy/package.json', JSON.stringify(p, null, 2));
           "
 
-          # Production-only install inside the deploy bundle (resolves Prisma + shared)
           cd _deploy
           npm install --omit=dev --no-audit --no-fund --no-package-lock
-
-          # Generate Prisma client AFTER install (so it lands in _deploy/node_modules)
           npx prisma generate
 
-          echo "=== Bundle structure ==="
+          # Hard-copy shared as a real directory (no symlinks).
+          mkdir -p node_modules/shared
+          cp -r ../shared/dist node_modules/shared/dist
+          cp ../shared/package.json node_modules/shared/package.json
+
+          echo "=== Bundle root ==="
           ls -la
-          echo "=== shared resolved as ==="
+          echo "=== node_modules/shared/ ==="
           ls -la node_modules/shared/
+          echo "=== Sanity check: node resolves shared ==="
+          node -e "console.log(require.resolve('shared'))"
 
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
