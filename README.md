@@ -2,6 +2,15 @@
 
 A vendor payment workflow app with **atomic status transitions** and a **full audit log**.
 
+## Live demo
+
+| | URL |
+|---|---|
+| Frontend | https://purple-pond-0d0b80200.7.azurestaticapps.net |
+| Backend API | https://payflow-api.azurewebsites.net |
+
+Hosted on Azure (App Service + Static Web Apps + Flexible PostgreSQL). See [Deployment](#deployment) for details.
+
 ## Quick start (5 steps)
 
 **Prerequisite:** PostgreSQL 16 running locally.
@@ -139,6 +148,23 @@ npm --prefix backend run seed
 - **Atomic transitions.** Every status change runs inside a `prisma.$transaction` with a `SELECT … FOR UPDATE` row lock. The status update and the audit-log insert land together or roll back together.
 - **Single validation source.** Zod schemas live in `shared/` and are imported by both the backend (server-side validation middleware) and the frontend (form validation). One file defines what "valid" means.
 - **No delete.** Payments are immortal — the `ON DELETE RESTRICT` foreign key on the history table enforces this at the database level. If a payment shouldn't have happened, transition it to `FAILED` rather than remove it.
+
+## Deployment
+
+The app is deployed to Azure with the following architecture:
+
+| Layer | Service | Tier | Region |
+|---|---|---|---|
+| Frontend | Azure Static Web Apps | Free | East Asia (global CDN) |
+| Backend | Azure App Service (Linux, Node 22) | Basic B1 | Central India |
+| Database | Azure Database for PostgreSQL Flexible Server | Burstable B1ms | Central India |
+| Secrets | Azure Key Vault | Standard | Central India |
+
+`DATABASE_URL` is stored in Key Vault and referenced by App Service via system-assigned managed identity (`@Microsoft.KeyVault(SecretUri=...)`). No plaintext connection string anywhere in code, config, or workflows.
+
+Deployment runs on every push to `main` via two GitHub Actions workflows (`.github/workflows/`):
+- `deploy-backend.yml` — builds the backend + inlines the `shared` workspace into the deploy bundle, then pushes to App Service. Migrations run on startup via `prisma migrate deploy`.
+- `deploy-frontend.yml` — builds CRA with `REACT_APP_API_URL` baked in at compile time, uploads to Static Web Apps.
 
 ## What I'd add next
 
