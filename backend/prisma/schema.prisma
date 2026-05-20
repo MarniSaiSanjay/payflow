@@ -1,7 +1,5 @@
-// Output pinned to workspace-root node_modules so backend + shared share one client
 generator client {
   provider = "prisma-client-js"
-  output   = "../../node_modules/.prisma/client"
 }
 
 // DATABASE_URL is read from .env via env.ts

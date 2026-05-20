@@ -2,6 +2,20 @@
   "name": "tolken-payout-tracker",
   "version": "0.0.1",
   "private": true,
-  "workspaces": ["frontend", "backend", "shared"],
-  "engines": { "node": ">=22" }
+  "workspaces": [
+    "frontend",
+    "backend",
+    "shared"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "setup": "npm install && npm --prefix shared run build && npm --prefix backend run db:setup",
+    "dev": "concurrently -n backend,frontend -c blue,green \"npm --prefix backend run dev\" \"npm --prefix frontend start\"",
+    "build:shared": "npm --prefix shared run build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
 }
