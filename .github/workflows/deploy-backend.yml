@@ -62,6 +62,10 @@ jobs:
           cp -r ../shared/dist node_modules/shared/dist
           cp ../shared/package.json node_modules/shared/package.json
 
+          # Install shared's own runtime deps so things
+          # inside shared/dist/index.js resolve at runtime.
+          (cd node_modules/shared && npm install --omit=dev --no-audit --no-fund --no-package-lock)
+
           echo "=== Bundle root ==="
           ls -la
           echo "=== node_modules/shared/ ==="
